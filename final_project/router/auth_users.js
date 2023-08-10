@@ -48,22 +48,6 @@ regd_users.post("/login", (req,res) => {
       return res.status(208).json({message: "Invalid Login. Check username and password"});
 }});
 
-
-regd_users.post("/register", (req,res) => {
-    const username = req.body.username;
-    const password = req.body.password;
-  
-    if (username && password) {
-      if (!isValid(username)) { 
-        users.push({"username":username,"password":password});
-        return res.status(200).json({message: "User successfully registred. Now you can login"});
-      } else {
-        return res.status(404).json({message: "User already exists!"});    
-      }
-    } 
-    return res.status(404).json({message: "Unable to register user."});
-});
-
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   const username =req.session.authorization.username
@@ -75,20 +59,32 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   
   const review = req.body.review;
   const isbn = req.params.isbn;
-
-  console.log(review,username,isbn)
-
-  const newReview ={
-    "username": username,
-    "review" : review 
-  }
   //this line of code adds a new review to the object if not there
   //and in case its aready there it substitutes it
   books[isbn].reviews[username] = review
 
+  console.log(books[isbn].reviews);
+
   return res.status(300).json({message: "Success, your review was registered!"});
 });
 
+
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const username =req.session.authorization.username
+
+  //this is just double protection
+  if(username == undefined){
+    return res.status(404).json({message: "Unauthorized."});
+  }
+  
+  const isbn = req.params.isbn;
+
+  delete books[isbn].reviews[username]
+
+  console.log(books[isbn].reviews);
+
+  return res.status(300).json({message: "Success, your review was deleted!"});
+});
 
 
 
