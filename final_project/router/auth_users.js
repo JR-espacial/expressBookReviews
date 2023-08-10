@@ -66,8 +66,27 @@ regd_users.post("/register", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+  const username =req.session.authorization.username
+
+  //this is just double protection
+  if(username == undefined){
+    return res.status(404).json({message: "Unauthorized."});
+  }
+  
+  const review = req.body.review;
+  const isbn = req.params.isbn;
+
+  console.log(review,username,isbn)
+
+  const newReview ={
+    "username": username,
+    "review" : review 
+  }
+  //this line of code adds a new review to the object if not there
+  //and in case its aready there it substitutes it
+  books[isbn].reviews[username] = review
+
+  return res.status(300).json({message: "Success, your review was registered!"});
 });
 
 
